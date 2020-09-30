@@ -4,8 +4,8 @@ Jake Hellman
 jhellman@bu.edu  
 
 
-Simon Gilbert
-simonsai@bu.edu
+Simon Gilbert  
+simonsai@bu.edu  
 
 
 Shashank Manjunath  
