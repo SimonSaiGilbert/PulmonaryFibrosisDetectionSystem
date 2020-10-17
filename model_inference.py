@@ -1,4 +1,7 @@
+from plot_volume import plot_gif
 from tensorflow import keras
+
+import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
 import pydicom
@@ -65,11 +68,25 @@ def unet3d():
     return model
 
 
-def run_inference(weights_path):
+def load_model(weights_path):
     model = unet3d()
     model.load_weights(weights_path)
-    return
+    return model
 
+
+def run_inference(data, weights_path):
+    model = load_model(weights_path)
+    pred = model.predict(data)
+    return pred
+
+
+def crop_center(data, cropx, cropy):
+    '''Crop all images in the data'''
+    z,y,x = data.shape
+    startx = x//2 - (cropx//2)
+    starty = y//2 - (cropy//2)
+    
+    return data[:, starty:starty+cropy, startx:startx+cropx]
 
 def crop_and_normalize_dicom(img, hu=[-1200., 600.]):
     lungwin = np.array(hu)
@@ -78,6 +95,7 @@ def crop_and_normalize_dicom(img, hu=[-1200., 600.]):
     newimg[newimg > 1] = 1
     #  newimg = (newimg * 255).astype('uint8')
     newimg = newimg.astype(np.float)
+    newimg = crop_center(newimg,512,512)
     return newimg
 
 
@@ -100,7 +118,7 @@ def load_data(data_dir):
 
     # Set outside-of-scan pixels to 0
     # The intercept is usually -1024, so air is approximately 0
-    data[data == -2000] = 0
+    data[data <= -2000] = 0
     
     # Convert to Hounsfield units (HU)
     for slice_number in range(data.shape[0]):
@@ -118,6 +136,15 @@ def load_data(data_dir):
 
 
 if __name__ == "__main__":
-    #  run_inference("convlstm_model_best_weights.hdf5")
-    data = load_data("../data/test/ID00419637202311204720264/")
-    print(data[0])
+    data_dir = "/projectnb/ece601/F-PuPS/kaggle/data/test/ID00419637202311204720264/"
+    #  data_dir = "/projectnb/ece601/F-PuPS/kaggle/data/train/ID00007637202177411956430"
+    data = load_data(data_dir)[None, :, :, :, None]
+    output_data = run_inference(data, "convlstm_model_best_weights.hdf5")
+
+    data = data[0, :, :, :, 0]
+    output_data = output_data[0, :, :, :, 0]
+    plot_gif(data, output_data, "example_outputs.gif")
+
+    #  plt.imsave("tmp_input.png", data[0, 14, :, :, 0])
+    #  plt.imsave("tmp_output.png", output_data[0, 14, :, :, 0] > 0.05)
+

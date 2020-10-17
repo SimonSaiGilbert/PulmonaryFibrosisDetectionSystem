@@ -38,3 +38,16 @@ Colab and the dataset can be directly downloaded from the Kaggle database with p
 We plan to modify the code to apply the model trained by rekalantar to the data from the Kaggle Pulmonary Fibrosis
 competition.
 
+## Data Loading
+
+Data loading is accomplished by the `load_data` function in model_inference.py. We use the given scan parameters
+provided in the DICOM file to rescale the given data to Hounsfield Units (HU). This is a unit where pure water is 0 and
+high density material (e.g., bone) is 1.
+
+## Executing The Network on Kaggle Data
+
+We now want to see if the pretrained network, which was trained on data from the Kaggle Data Science Bowl 2017, will
+work on our current data. We execute the model on one of our data volumes. Results are shown below:
+
+![](example_outputs.gif)
+
