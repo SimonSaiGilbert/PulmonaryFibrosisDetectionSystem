@@ -1,3 +1,15 @@
+evaluate_performance.py - runs trained model on input images
+models.py - contains the models
+my_sample_results.gif - gif of *my* results for one patient
+my_sample_results.png - png of *my* results for one patient
+plot_volume.py - generate gif
+Prepare_data.py - import and prep the original author's/repo's data
+preprocess_data.py - import and prep the data for this project
+README.md - this file
+Reza_functions.py - processing functions used when importing the data
+sample_results.png - the original author's/repo's results
+train_lung.py - the training file which can be run on the original author's/repo's data
+
 # ECE601, Fall 2020, Project 3
 
 ## Phase 1
