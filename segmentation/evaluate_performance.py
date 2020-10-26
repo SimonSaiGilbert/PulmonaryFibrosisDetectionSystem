@@ -1,5 +1,4 @@
 import os
-#os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import models as M
 import numpy as np
 import scipy

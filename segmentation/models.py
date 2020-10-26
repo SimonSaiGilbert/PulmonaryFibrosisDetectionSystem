@@ -9,6 +9,7 @@ from keras.optimizers import SGD
 from keras.optimizers import *
 from keras.layers import *        
     
+
 def BCDU_net_D3(input_size = (256,256,1)):
     N = input_size[0]
     inputs = Input(input_size) 
@@ -140,3 +141,4 @@ def BCDU_net_D1(input_size = (256,256,1)):
     model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])    
     return model
     
+
