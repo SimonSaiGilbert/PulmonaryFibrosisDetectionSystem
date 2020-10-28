@@ -15,10 +15,7 @@ print('Dataset loaded')
 
 ####################################  Run Model #####################################
 te_data2 = te_data /255.
-if my_data:
-    model = M.BCDU_net_D3(input_size = (512,512,1))
-else:
-    model = M.BCDU_net_D3(input_size = (512,512,1))
+model = M.BCDU_net_D3(input_size = (512,512,1))
 model.summary()
 model.load_weights('weight_lung')
 predictions = model.predict(te_data2, batch_size=2, verbose=1)
