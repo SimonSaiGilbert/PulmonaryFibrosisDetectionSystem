@@ -8,6 +8,8 @@ from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.layers import *        
     
+import numpy as np
+
 
 def BCDU_net_D3(input_size = (256,256,1)):
     N = input_size[0]
@@ -75,7 +77,7 @@ def BCDU_net_D3(input_size = (256,256,1)):
     conv8 = Conv2D(2, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv8)
     conv9 = Conv2D(1, 1, activation = 'sigmoid')(conv8)
 
-    model = Model(input = inputs, output = conv9)
+    model = Model(inputs=inputs, outputs=conv9)
     model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])    
     return model
 
@@ -141,4 +143,3 @@ def BCDU_net_D1(input_size = (256,256,1)):
     model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])    
     return model
     
-
