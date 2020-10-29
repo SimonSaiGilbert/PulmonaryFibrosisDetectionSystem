@@ -141,3 +141,4 @@ def BCDU_net_D1(input_size = (256,256,1)):
     model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])    
     return model
     
+
