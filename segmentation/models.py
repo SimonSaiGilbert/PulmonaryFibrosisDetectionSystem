@@ -1,14 +1,14 @@
 from __future__ import division
-from keras.models import Model
-from keras.layers import Input, concatenate, Conv2D, MaxPooling2D, UpSampling2D, Reshape, core, Dropout
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from keras import backend as K
-from keras.utils.vis_utils import plot_model as plot
-from keras.optimizers import SGD
-from keras.optimizers import *
-from keras.layers import *        
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, concatenate, Conv2D, MaxPooling2D, UpSampling2D, Reshape, Dropout
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from tensorflow.keras import backend as K
+from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.optimizers import *
+from tensorflow.keras.layers import *        
     
+
 def BCDU_net_D3(input_size = (256,256,1)):
     N = input_size[0]
     inputs = Input(input_size) 
@@ -78,6 +78,7 @@ def BCDU_net_D3(input_size = (256,256,1)):
     model = Model(input = inputs, output = conv9)
     model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])    
     return model
+
 
 def BCDU_net_D1(input_size = (256,256,1)):
     N = input_size[0]

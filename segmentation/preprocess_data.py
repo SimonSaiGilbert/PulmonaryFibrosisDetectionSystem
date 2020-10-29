@@ -72,7 +72,8 @@ def save_data(data):
     if not os.path.exists(folder):
         os.makedirs(folder)
         
-    np.save(folder+'my_data_test', data)
+    np.save(folder + 'my_data_test', data)
+
 
 if __name__ == "__main__":
  #   data_dir = "ID00419637202311204720264/"
