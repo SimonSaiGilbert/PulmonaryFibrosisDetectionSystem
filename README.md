@@ -23,8 +23,3 @@ you have installed Anaconda3, create the environment using the command:
 conda env create -f environment.yml
 ```
 
-## Segmenting the Lungs
-
-** Jake fill in **
-
-## Extracting Lung Volume
