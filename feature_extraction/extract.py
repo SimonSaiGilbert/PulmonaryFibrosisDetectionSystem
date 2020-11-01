@@ -54,10 +54,10 @@ if __name__ == "__main__":
     mask = np.load(segmentation_fname)
 
     for idx, d in enumerate(dicom_data):
-        lung_data = lung_volume(mask[idx, :, :], d)
+        inv_mask = 1 - mask[idx, :, :]
+        vol = lung_volume(inv_mask, d)
 
-    #  plt.imsave("test.png", mask[15, :, :])
-    #  print(lung_data)
-
-    #  plt.imsave("test.png", np.concatenate((lung_data[15, :, :], (1.0 - mask[15, :, :])*255.0), axis=1))
+        if idx == 15:
+            print("Lung Volume: {} mm^3".format(vol))
+            plt.imsave("test.png", inv_mask)
 
