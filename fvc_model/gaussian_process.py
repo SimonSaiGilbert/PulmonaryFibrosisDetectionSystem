@@ -34,19 +34,17 @@ sex_to_int = {
     "Female": 1,
 }
 
+## Evaluation Metric Function - Credit to @rohanrao on Kaggle
+def laplace_log_likelihood(actual_fvc, predicted_fvc, confidence, return_values=False):
+    """ Calculates the modified Laplace Log Likelihood score """
+    sd_clipped = np.maximum(confidence, 70)
+    delta = np.minimum(np.abs(actual_fvc - predicted_fvc), 1000)
+    metric = - np.sqrt(2) * delta / sd_clipped - np.log(np.sqrt(2) * sd_clipped)
 
-def plot_data(data, patient_id, fname):
-    x = data[patient_id]["Weeks"]
-    y = data[patient_id]["FVC"]
+    if return_values:
+        return metric
+    return np.mean(metric)
 
-    plt.figure()
-    plt.scatter(x, y)
-    plt.title(patient_id)
-    plt.xlabel("Weeks")
-    plt.ylabel("FVC")
-    plt.savefig(fname)
-    return
-    
 
 def featurize_train_inputs(input_dict):
     """ 
@@ -78,13 +76,10 @@ def featurize_test_inputs(input_dict):
 
 
 def fit_gaussian_process(X_train, y_train, X_test, y_test):
-    kernel = ConstantKernel(constant_value=1.0, constant_value_bounds=(1e-3, 1e-3)) * RBF(length_scale=10, length_scale_bounds=(1e-2, 1e-2))
+    kernel = RBF(length_scale=0.5, length_scale_bounds=(1e-2, 1e-2))
     gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=9)
     gp.fit(X_train, y_train)
-
-    y_pred, sigma = gp.predict(X_test, return_std=True)
-    
-    return y_pred
+    return gp
 
 
 def load_categorical_data(csv_dir):
@@ -118,11 +113,21 @@ def load_categorical_data(csv_dir):
 
 def main():
     X_train, y_train, X_test, y_test = load_categorical_data("/projectnb/ece601/F-PuPS/kaggle/data")
-    y_pred = fit_gaussian_process(X_train, y_train, X_test, y_test)
+    gp = fit_gaussian_process(X_train, y_train, X_test, y_test)
+    y_train_pred, train_sigma = gp.predict(X_train, return_std=True)
+    y_pred, sigma = gp.predict(X_test, return_std=True)
+
+    y_train = np.squeeze(y_train)
+    y_train_pred = np.squeeze(y_train_pred)
+    y_test = np.squeeze(y_test)
+    y_pred = np.squeeze(y_pred)
 
     for p, t in zip(y_pred, y_test):
         print(p, t)
 
+    print("Training Laplace Log Likelihood: {}".format(laplace_log_likelihood(y_train, y_train_pred,
+        train_sigma*y_train_pred)))
+    print("Testing Laplace Log Likelihood: {}".format(laplace_log_likelihood(y_test, y_pred, sigma*y_pred)))
     return
 
 
