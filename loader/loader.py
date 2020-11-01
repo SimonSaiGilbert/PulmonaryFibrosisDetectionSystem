@@ -1,19 +1,9 @@
+import pandas as pd
 import numpy as np
 import pydicom
 import glob
 import os
 import re
-
-# Courtesy of Shashank
-
-
-def hu_to_grayscale(volume):
-    volume = np.clip(volume, -512, 512)
-    mxval  = np.max(volume)
-    mnval  = np.min(volume)
-    im_volume = (volume - mnval)/max(mxval - mnval, 1e-3)
-    im_volume = im_volume
-    return im_volume *255
 
 
 def crop_center(data, cropx, cropy):
@@ -23,7 +13,6 @@ def crop_center(data, cropx, cropy):
     starty = y//2 - (cropy//2)
     
     return data[:, starty:starty+cropy, startx:startx+cropx]
-
 
 def crop_and_normalize_dicom(img, hu=[-1200., 600.]):
     lungwin = np.array(hu)
@@ -36,8 +25,8 @@ def crop_and_normalize_dicom(img, hu=[-1200., 600.]):
     return newimg
 
 
-def load_data(data_dir):
-    """ Function to load all DICOM files in directory """
+def load_scan(data_dir):
+    """ Function to load a single scan represented by multiple DICOM files in a directory """
 
     # Finding all DICOM files in specified directory
     dcm_files = glob.glob(os.path.join(data_dir, "*.dcm"))
@@ -67,30 +56,27 @@ def load_data(data_dir):
             data[slice_number] = slope * data[slice_number].astype(np.float64)
             data[slice_number] = data[slice_number].astype(np.int16)
             
-        data[slice_number] += np.int32(intercept)
- 
+        data[slice_number] += np.uint16(intercept)
     data = crop_and_normalize_dicom(data)
-    
-    for slice_number in range(data.shape[0]):
-        data[slice_number] = hu_to_grayscale(data[slice_number])
-    
     return data
 
 
-def save_data(data):
-    '''Save data to npy file'''
+def load_train_dataset(data_dir, label_file):
+    """ Function to load train dataset """
 
-    folder = './processed_data/'
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-        
-    np.save(folder + 'my_data_test', data)
+    # Getting all scan names
+    scans = os.listdir(data_dir)
+
+    # Getting labels
+    labels = pd.read_csv(label_file)
+    print(labels)
+    return
 
 
 if __name__ == "__main__":
- #   data_dir = "ID00419637202311204720264/"
-    data_dir = "/projectnb/ece601/F-PuPS/kaggle/data/test/ID00419637202311204720264/"
-    save_data(load_data(data_dir))    
-else:
-    data_dir = "/projectnb/ece601/F-PuPS/kaggle/data/test/ID00419637202311204720264/"
-    save_data(load_data(data_dir))
+    data_dir = "/projectnb/ece601/F-PuPS/kaggle/data/train"
+    label_file = "/projectnb/ece601/F-PuPS/kaggle/data/train.csv"
+
+    data, labels = load_train_dataset(data_dir, label_file)
+
+

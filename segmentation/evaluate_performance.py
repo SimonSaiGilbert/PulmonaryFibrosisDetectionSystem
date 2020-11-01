@@ -1,16 +1,12 @@
 import os
+#os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import models as M
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 
 ####################################  Load Data #####################################
-folder    = "projectnb/ece601/F-PuPS/kaggle/data/train/"
-
-for fname in os.listdir(folder):
-    patient_id = fname
-    dicom_folder = os.path.join(folder, fname)
-    scan_data = 
+folder    = './processed_data/'
 te_data   = np.load(folder+'my_data_test.npy')
 
 te_data  = np.expand_dims(te_data, axis=3)
