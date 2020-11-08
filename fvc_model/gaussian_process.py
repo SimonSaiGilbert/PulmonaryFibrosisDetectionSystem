@@ -122,8 +122,8 @@ def main():
     y_test = np.squeeze(y_test)
     y_pred = np.squeeze(y_pred)
 
-    for p, t in zip(y_pred, y_test):
-        print(p, t)
+    for d, p, t, s in zip(X_test, y_pred, y_test, sigma):
+        print("{}, {}, {}, {}, {:.3f} {:.1f} {:.3f}".format(d[0], d[1], d[2], d[3], p, t, s*p))
 
     print("Training Laplace Log Likelihood: {}".format(laplace_log_likelihood(y_train, y_train_pred,
         train_sigma*y_train_pred)))
