@@ -42,9 +42,9 @@ class ModelTrainer(object):
         return predictions
 
 
-def load_dataset(scan_data_dir, csv_dir):
+def load_dataset(scan_data_dir, csv_dir, max_num_slices=None, pad_csv_data=False):
     dataset = {"data": [[], []], "label": []}
-    csv_data = csv_to_dict(csv_dir)
+    csv_data = csv_to_dict(csv_dir, pad_with_zeros=pad_csv_data)
 
     if "train" in scan_data_dir:
         csv_data = csv_data[0]
@@ -53,6 +53,9 @@ def load_dataset(scan_data_dir, csv_dir):
 
     for pt_idx, patient_id in enumerate(tqdm(os.listdir(scan_data_dir))):
         scan_data = load_scan(os.path.join(scan_data_dir, patient_id))
+        slice_dim = scan_data[1]
+        while scan_data.shape[0] < max_num_slices:
+            scan_data.np.append(np.zeros((slice_dim, slice_dim)))
         scan_data = scan_data / 255.
         scan_data = np.expand_dims(scan_data, axis=0)
 
@@ -89,11 +92,15 @@ if __name__ == "__main__":
     model = nn_model()
     train_dataset = load_dataset(
         scan_data_dir="/projectnb/ece601/F-PuPS/kaggle/data/train",
-        csv_dir="/projectnb/ece601/F-PuPS/kaggle/data/",
+        csv_dir="/projectnb/ece601/F-PuPS/kaggle/data/", 
+        max_num_slices=1018,    #CHANGED TO MAX NUMBER OF SLICES FOR ALL PATIENTS
+        pad_csv_data=False      #Could change to True if we want to pad the data
     )
     test_dataset = load_dataset(
         scan_data_dir="/projectnb/ece601/F-PuPS/kaggle/data/test",
         csv_dir="/projectnb/ece601/F-PuPS/kaggle/data/",
+        max_num_slices=1018,    #CHANGED TO MAX NUMBER OF SLICES FOR ALL PATIENTS
+        pad_csv_data=False      ##Could change to True if we want to pad the data. Might be weird for test data since they're all just one week
     )
 
     trainer = ModelTrainer(model=model, run_name="tmp")
