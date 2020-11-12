@@ -53,7 +53,7 @@ def load_dataset(scan_data_dir, csv_dir, max_num_slices=None, pad_csv_data=False
 
     for pt_idx, patient_id in enumerate(tqdm(os.listdir(scan_data_dir))):
         scan_data = load_scan(os.path.join(scan_data_dir, patient_id))
-        slice_dim = scan_data[1]
+        slice_dim = scan_data.shape[1]
         while scan_data.shape[0] < max_num_slices:
             scan_data.np.append(np.zeros((slice_dim, slice_dim)))
         scan_data = scan_data / 255.
