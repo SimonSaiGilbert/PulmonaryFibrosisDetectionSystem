@@ -29,13 +29,13 @@ def csv_to_dict(csv_directory, pad_with_zeros=False):
 					csv_test_dict[row[0]]['FVC'] = []
 					csv_test_dict[row[0]]['Percent'] = []
 					csv_test_dict[row[0]]['Age'] = [float(row[4])]
-					csv_test_dict[row[0]]['Sex'] = [float(row[5])]
+					csv_test_dict[row[0]]['Sex'] = [str(row[5])]
 					csv_test_dict[row[0]]['Smoking Status'] = []
 
 				csv_test_dict[row[0]]['Weeks'].append(float(row[1]))
 				csv_test_dict[row[0]]['FVC'].append(float(row[2]))
 				csv_test_dict[row[0]]['Percent'].append(float(row[3]))
-				csv_test_dict[row[0]]['Smoking Status'].append(float(row[6]))
+				csv_test_dict[row[0]]['Smoking Status'].append(str(row[6]))
 
 			
 	with open(os.path.join(csv_directory, "train.csv"), newline = '') as csv_train_file:
@@ -53,13 +53,13 @@ def csv_to_dict(csv_directory, pad_with_zeros=False):
 					csv_train_dict[row[0]]['FVC'] = []
 					csv_train_dict[row[0]]['Percent'] = []
 					csv_train_dict[row[0]]['Age'] = [float(row[4])]
-					csv_train_dict[row[0]]['Sex'] = [float(row[5])]
+					csv_train_dict[row[0]]['Sex'] = [str(row[5])]
 					csv_train_dict[row[0]]['Smoking Status'] = []
 
 				csv_train_dict[row[0]]['Weeks'].append(float(row[1]))
 				csv_train_dict[row[0]]['FVC'].append(float(row[2]))
 				csv_train_dict[row[0]]['Percent'].append(float(row[3]))
-				csv_train_dict[row[0]]['Smoking Status'].append(float(row[6]))
+				csv_train_dict[row[0]]['Smoking Status'].append(str(row[6]))
 
 	if pad_with_zeros == True:
 		#Pads values in test dictionary
