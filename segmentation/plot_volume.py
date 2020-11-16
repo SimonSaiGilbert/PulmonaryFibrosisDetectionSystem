@@ -4,6 +4,7 @@ import imageio
 import Reza_functions as rf
 import glob
 import os
+from datetime import date
 
 # Courtesy of Shashank
 
@@ -17,7 +18,7 @@ def plot_all_patients():
     raw_data_path = "/projectnb/ece601/F-PuPS/kaggle/data/test/"
     data_path = "/projectnb/ece601/F-PuPS/kaggle/preprocessed_data/test/"
     mask_path = "/projectnb/ece601/F-PuPS/kaggle/output_pipeline/test/"
-    output_path = "test_patient_gifs/"
+    output_path = "test_patient_gifs/" + str(date.today()) + "/"
     
     if not os.path.exists(output_path):
         os.makedirs(output_path)

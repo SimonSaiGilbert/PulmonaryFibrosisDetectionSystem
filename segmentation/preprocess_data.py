@@ -4,6 +4,7 @@ import glob
 import os
 import re
 import Reza_functions as rf
+from skimage.transform import resize
 
 # Courtesy of Shashank
 
@@ -22,8 +23,10 @@ def crop_and_normalize_dicom(img, hu=[-1200., 600.]):
     newimg[newimg > 1] = 1
     #  newimg = (newimg * 255).astype('uint8')
     newimg = newimg.astype(np.float)
-    newimg = crop_center(newimg,512,512)
-    return newimg
+    resultimg = np.zeros((newimg.shape[0],512,512))
+    for i,slice in enumerate(newimg):        
+        resultimg[i,:,:] = resize(slice,(512,512))
+    return resultimg
 
 def load_data(data_dir):
     """ Function to load all DICOM files in directory """
