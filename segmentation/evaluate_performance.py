@@ -4,6 +4,7 @@ import models as M
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+from keras import backend as K
 
 def run_model(input_path, output_path, patient_id):
 ####################################  Load Data #####################################
@@ -22,6 +23,8 @@ def run_model(input_path, output_path, patient_id):
     
     predictions = np.squeeze(predictions)
     predictions = np.where(predictions>0.5, 1, 0)
+
+    K.clear_session()
 
 ####################################  Save Data #####################################
     if not os.path.exists(output_path):
