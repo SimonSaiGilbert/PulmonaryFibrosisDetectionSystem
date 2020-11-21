@@ -6,7 +6,18 @@ import re
 import Reza_functions as rf
 from skimage.transform import resize
 
+
 # Courtesy of Shashank
+
+
+def hu_to_grayscale(volume):
+    volume = np.clip(volume, -512, 512)
+    mxval  = np.max(volume)
+    mnval  = np.min(volume)
+    im_volume = (volume - mnval)/max(mxval - mnval, 1e-3)
+    im_volume = im_volume
+    return im_volume *255
+
 
 def crop_center(data, cropx, cropy):
     '''Crop all images in the data'''
@@ -15,6 +26,7 @@ def crop_center(data, cropx, cropy):
     starty = y//2 - (cropy//2)
     
     return data[:, starty:starty+cropy, startx:startx+cropx]
+
 
 def crop_and_normalize_dicom(img, hu=[-1200., 600.]):
     lungwin = np.array(hu)
@@ -27,6 +39,7 @@ def crop_and_normalize_dicom(img, hu=[-1200., 600.]):
     for i,slice in enumerate(newimg):        
         resultimg[i,:,:] = resize(slice,(512,512))
     return resultimg
+
 
 def load_data(data_dir):
     """ Function to load all DICOM files in directory """
@@ -71,6 +84,7 @@ def load_data(data_dir):
     return data_copy_2
 
 def save_data(data, output_path, patient_id):
+
     '''Save data to npy file'''
 
     if not os.path.exists(output_path):

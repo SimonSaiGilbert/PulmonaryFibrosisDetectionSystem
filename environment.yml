@@ -68,4 +68,3 @@ dependencies:
     - scikit-image==0.17.2
     - tifffile==2020.10.1
 prefix: /usr4/ec500/jhellman/.conda/envs/testenv
-
