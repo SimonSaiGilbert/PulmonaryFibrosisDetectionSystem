@@ -6,7 +6,7 @@ from segmentation import models
 
 
 def nn_model(freeze_backbone=False):
-    backbone = models.BCDU_net_D3(input_size=(None, 512,512))
+    backbone = models.BCDU_net_D3(input_size=(None, 602, 512, 512))
 
     if freeze_backbone:
         backbone.trainable = False
@@ -34,8 +34,14 @@ def nn_model(freeze_backbone=False):
     combined = layers.concatenate([fc_1, cat_3])
 
     output_1 = Dense(32, activation="relu")(combined)
-    output_2 = Dense(1, activation="softmax")(output_1)
+    output_2 = Dense(1)(output_1)
 
     model = Model(inputs=[backbone.input, categorical_input], outputs=output_2)
+    return model
+
+
+def test_nn_model():
+    backbone = models.BCDU_net_D3(input_size=(64, 128, 128, 1))
+    model = Model(inputs=backbone.input, outputs=backbone.output)
     return model
 
