@@ -1,17 +1,20 @@
-from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.layers import Dense, Input, Lambda
+from tensorflow.keras import backend as K
 from tensorflow.keras.models import Model
 from tensorflow.keras import layers
 from segmentation import models
+import tensorflow as tf
 
 
 
-def nn_model(freeze_backbone=False):
-    backbone = models.BCDU_net_D3(input_size=(None, 602, 512, 512))
+def nn_model(scan_size, freeze_backbone=False):
+    backbone = models.BCDU_net_D3(input_size=scan_size)
 
     if freeze_backbone:
         backbone.trainable = False
 
-    bc_1 = layers.Conv2D(32, 3, activation="relu", padding="same", kernel_initializer="he_normal")(backbone.output)
+    squeezed = Lambda(lambda x: K.squeeze(x, axis=-1))(backbone.output)
+    bc_1 = layers.Conv2D(32, 3, activation="relu", padding="same", kernel_initializer="he_normal")(squeezed)
     mp_1 = layers.MaxPooling2D(pool_size=(3, 3))(bc_1)
 
     bc_2 = layers.Conv2D(32, 3, activation="relu", padding="same", kernel_initializer="he_normal")(mp_1)
@@ -20,10 +23,7 @@ def nn_model(freeze_backbone=False):
     bc_3 = layers.Conv2D(32, 3, activation="relu", padding="same", kernel_initializer="he_normal")(mp_2)
     mp_3 = layers.MaxPooling2D(pool_size=(3, 3))(bc_3)
 
-    bc_4 = layers.Conv2D(32, 3, activation="relu", padding="same", kernel_initializer="he_normal")(mp_3)
-    mp_4 = layers.MaxPooling2D(pool_size=(3, 3))(bc_4)
-
-    flat = layers.Flatten()(mp_4)
+    flat = layers.Flatten()(mp_3)
     fc_1 = layers.Dense(512, activation="relu")(flat)
 
     categorical_input = Input(shape=(4,))
@@ -41,7 +41,7 @@ def nn_model(freeze_backbone=False):
 
 
 def test_nn_model():
-    backbone = models.BCDU_net_D3(input_size=(64, 128, 128, 1))
+    backbone = models.BCDU_net_D3(input_size=(128, 64, 64, 1))
     model = Model(inputs=backbone.input, outputs=backbone.output)
     return model
 

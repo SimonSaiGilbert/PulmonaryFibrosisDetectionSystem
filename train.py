@@ -1,6 +1,6 @@
 from csv_reader.csv_to_dict import csv_to_dict
 from tensorflow.keras.optimizers import Adam
-from fvc_model.neural_network import test_nn_model
+from fvc_model.neural_network import nn_model
 from loader.loader import load_scan
 from tqdm import tqdm
 
@@ -31,7 +31,7 @@ class ModelTrainer(object):
     def train(self, lr: float, train_data: dict, test_data: dict, epochs: int=100):
         self.model.compile(optimizer=Adam(lr=lr), loss="MSE")    
         history = self.model.fit(
-            np.zeros((10, 64, 128, 128, 1)), np.zeros((10, 64, 128, 128, 1)), 
+            train_data["data"], train_data["label"], 
             batch_size=1, 
             epochs=epochs,
             #  validation_data=(np.concatenate(test_data["data"][0], axis=0), np.zeros((len(test_data["data"][0]), 512, 512, 1)))
@@ -58,7 +58,7 @@ def pad_arr(input_arr, target_dim_size, dim):
             zero_arr_size.append(dim_size)
         else:
             zero_arr_size.append(target_dim_size - dim_size)
-    scan_data = np.concatenate((scan_data, np.zeros((zero_arr_size))), axis=dim)
+    scan_data = np.concatenate((input_arr, np.zeros((zero_arr_size))), axis=dim)
     return scan_data
 
 
@@ -89,12 +89,9 @@ def load_dataset(scan_data_dir, csv_dir, target_scan_size):
         scan_data = load_scan(os.path.join(scan_data_dir, patient_id))
         slice_dim = scan_data.shape[1]
 
+        # Cropping or padding to appropriate size
         for axis_idx, _ in enumerate(scan_data.shape):
             scan_data = correct_dim_size(scan_data, target_scan_size[axis_idx], axis_idx)
-
-        # Cropping or padding to appropriate size
-        #  if pad_csv_data and scan_data.shape[0] < max_num_slices:
-        #      scan_data = np.concatenate((scan_data, np.zeros((max_num_slices - scan_data.shape[0], slice_dim, slice_dim))), axis=0)
 
         scan_data = scan_data / 255.
         scan_data = np.expand_dims(scan_data, axis=-1)
@@ -120,19 +117,20 @@ def load_dataset(scan_data_dir, csv_dir, target_scan_size):
 
 
 if __name__ == "__main__":
-    model = test_nn_model()
+    target_scan_size = (128, 64, 64, 1)
+    model = nn_model(scan_size=target_scan_size)
 
     # TODO: Dynamically find max number of slices
     max_slice_size = 64
     train_dataset = load_dataset(
         scan_data_dir="/projectnb/ece601/F-PuPS/kaggle/data/train",
         csv_dir="/projectnb/ece601/F-PuPS/kaggle/data/", 
-        target_scan_size=(128, 64, 64),
+        target_scan_size=target_scan_size,
     )
     test_dataset = load_dataset(
         scan_data_dir="/projectnb/ece601/F-PuPS/kaggle/data/test",
         csv_dir="/projectnb/ece601/F-PuPS/kaggle/data/",
-        target_scan_size=(128, 64, 64),
+        target_scan_size=target_scan_size,
     )
 
     trainer = ModelTrainer(model=model, run_name="tmp")
