@@ -3,6 +3,9 @@ import pydicom
 import glob
 import os
 import re
+import Reza_functions as rf
+from skimage.transform import resize
+
 
 # Courtesy of Shashank
 
@@ -32,8 +35,10 @@ def crop_and_normalize_dicom(img, hu=[-1200., 600.]):
     newimg[newimg > 1] = 1
     #  newimg = (newimg * 255).astype('uint8')
     newimg = newimg.astype(np.float)
-    newimg = crop_center(newimg,512,512)
-    return newimg
+    resultimg = np.zeros((newimg.shape[0],512,512))
+    for i,slice in enumerate(newimg):        
+        resultimg[i,:,:] = resize(slice,(512,512))
+    return resultimg
 
 
 def load_data(data_dir):
@@ -56,6 +61,8 @@ def load_data(data_dir):
     # Set outside-of-scan pixels to 0
     # The intercept is usually -1024, so air is approximately 0
     data[data <= -2000] = 0
+    data_copy = data.copy().astype(np.float64)
+    data_copy_2 = data_copy.copy().astype(np.int16)
     
     # Convert to Hounsfield units (HU)
     for slice_number in range(data.shape[0]):
@@ -63,34 +70,30 @@ def load_data(data_dir):
         intercept = data_list[slice_number].RescaleIntercept
         slope = data_list[slice_number].RescaleSlope
         
-        if slope != 1:
-            data[slice_number] = slope * data[slice_number].astype(np.float64)
-            data[slice_number] = data[slice_number].astype(np.int16)
+        data_copy[slice_number] = slope * data[slice_number].astype(np.float64)
+        data_copy_2[slice_number] = data_copy[slice_number].astype(np.int16)
             
-        data[slice_number] += np.int32(intercept)
+        temp = np.int16(intercept)
+        data_copy_2[slice_number] += temp
  
-    data = crop_and_normalize_dicom(data)
+    data_copy_2 = crop_and_normalize_dicom(data_copy_2)
     
-    for slice_number in range(data.shape[0]):
-        data[slice_number] = hu_to_grayscale(data[slice_number])
+    for slice_number in range(data_copy_2.shape[0]):
+        data_copy_2[slice_number] = rf.hu_to_grayscale(data_copy_2[slice_number])
     
-    return data
+    return data_copy_2
 
+def save_data(data, output_path, patient_id):
 
-def save_data(data):
     '''Save data to npy file'''
 
-    folder = './processed_data/'
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
         
-    np.save(folder + 'my_data_test', data)
-
+    np.save(output_path+patient_id, data)
 
 if __name__ == "__main__":
  #   data_dir = "ID00419637202311204720264/"
     data_dir = "/projectnb/ece601/F-PuPS/kaggle/data/test/ID00419637202311204720264/"
-    save_data(load_data(data_dir))    
-else:
-    data_dir = "/projectnb/ece601/F-PuPS/kaggle/data/test/ID00419637202311204720264/"
-    save_data(load_data(data_dir))
+    save_data(load_data(data_dir), './processed_data/','my_data_test')    
+
