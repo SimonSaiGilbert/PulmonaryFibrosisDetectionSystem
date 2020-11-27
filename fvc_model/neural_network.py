@@ -1,4 +1,5 @@
 from tensorflow.keras.layers import Dense, Input, Lambda
+from tensorflow.keras.models import load_model
 from tensorflow.keras import backend as K
 from tensorflow.keras.models import Model
 from tensorflow.keras import layers
@@ -6,10 +7,23 @@ from segmentation import models
 import tensorflow as tf
 
 
+def transfer_weights(source_model, target_model):
+    idx = 0
+    while True:
+        try:
+            target_model.get_layer(index=idx).set_weights(source_model.get_layer(index=idx).get_weights())
+        except ValueError:
+            break
+        idx += 1
+    return target_model
 
-def nn_model(scan_size, freeze_backbone=False):
+
+def nn_model(scan_size, backbone_weights=None, freeze_backbone=False):
     backbone = models.BCDU_net_D3(input_size=scan_size)
 
+    if backbone_weights:
+        source_model = load_model(backbone_weights)
+        backbone = transfer_weights(source_model, backbone)
     if freeze_backbone:
         backbone.trainable = False
 

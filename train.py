@@ -23,25 +23,23 @@ smoking_status_to_int = {
 }
 
 
+def root_mean_squared_error_loss(y_true, y_pred):
+        return tf.keras.backend.sqrt(tf.keras.losses.MSE(y_true, y_pred))
+
+
 class ModelTrainer(object):
     def __init__(self, model: tf.keras.models.Model, run_name: str):
         self.model = model
         self.run_name = run_name
 
     def train(self, lr: float, train_data: dict, test_data: dict, epochs: int=100):
-        self.model.compile(optimizer=Adam(lr=lr), loss="MSE")    
+        self.model.compile(optimizer=Adam(lr=lr), loss=root_mean_squared_error_loss)    
         history = self.model.fit(
-            train_data["data"], train_data["label"], 
-            batch_size=1, 
+            train_data["data"], train_data["label"],
+            batch_size=1,
             epochs=epochs,
-            #  validation_data=(np.concatenate(test_data["data"][0], axis=0), np.zeros((len(test_data["data"][0]), 512, 512, 1)))
+            validation_data=(test_data["data"], test_data["label"])
         )
-        #  history = self.model.fit(
-        #      train_data["data"], train_data["label"],
-        #      batch_size=1,
-        #      epochs=epochs,
-        #      validation_data=(test_data["data"], test_data["label"])
-        #  )
         return
 
     def eval(self, test_arr: np.ndarray):
@@ -110,15 +108,16 @@ def load_dataset(scan_data_dir, csv_dir, target_scan_size):
             dataset["data"][1].append(data_pt)
             dataset["label"].append(pt_data["FVC"][idx])
 
-        if pt_idx >= 0:
-            break
+        #  if pt_idx >= 5:
+        #      break
 
     return dataset
 
 
 if __name__ == "__main__":
     target_scan_size = (128, 64, 64, 1)
-    model = nn_model(scan_size=target_scan_size)
+    model = nn_model(scan_size=target_scan_size, backbone_weights="/projectnb/ece601/F-PuPS/Hellman_working_directory/ec601-term-project/segmentation/weight_lung")
+    #  model = nn_model(scan_size=target_scan_size)
 
     # TODO: Dynamically find max number of slices
     max_slice_size = 64
@@ -134,5 +133,5 @@ if __name__ == "__main__":
     )
 
     trainer = ModelTrainer(model=model, run_name="tmp")
-    trainer.train(lr=1e-4, train_data=train_dataset, test_data=test_dataset, epochs=1)
+    trainer.train(lr=1e-4, train_data=train_dataset, test_data=test_dataset, epochs=100)
 
