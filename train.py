@@ -84,7 +84,11 @@ def load_dataset(scan_data_dir, csv_dir, target_scan_size):
         csv_data = csv_data[1]
 
     for pt_idx, patient_id in enumerate(tqdm(os.listdir(scan_data_dir))):
-        scan_data = load_scan(os.path.join(scan_data_dir, patient_id))
+        try:
+            scan_data = load_scan(os.path.join(scan_data_dir, patient_id))
+        except RuntimeError:
+            continue
+
         slice_dim = scan_data.shape[1]
 
         # Cropping or padding to appropriate size
@@ -132,6 +136,6 @@ if __name__ == "__main__":
         target_scan_size=target_scan_size,
     )
 
-    trainer = ModelTrainer(model=model, run_name="tmp")
+    trainer = ModelTrainer(model=model, run_name="unfrozen_backbone")
     trainer.train(lr=1e-4, train_data=train_dataset, test_data=test_dataset, epochs=100)
 
