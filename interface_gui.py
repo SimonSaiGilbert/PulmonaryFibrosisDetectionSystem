@@ -1,16 +1,60 @@
+import os.path
 import tkinter as tk
+from tkinter.filedialog import askdirectory
+
+def close_window():
+	popup.destroy()
 
 def handle_sp():
 	print("Handling select patient...")
+	global filename 
+	filename = askdirectory()
+	print("Ready to process patient from: " + str(filename))
 
 def handle_ct():
 	print("Handling view CT scan...")
+	try:
+		assert(os.path.isdir(filename))
+		print("Displaying CT scan data for: " + str(filename))
+		# insert code for displaying CT data here
+	except:
+		popup = tk.Toplevel()
+		popup.winfo_toplevel().title("Warning")
+		popup.geometry("250x50")
+		label = tk.Label(text="Please select a patient first.",master=popup)
+		label.pack()
+		button = tk.Button(text="Close",master=popup,command=popup.destroy)
+		button.pack()
 
 def handle_seg():
 	print("Handling segment lungs...")
+	try:
+		assert(os.path.isdir(filename))
+		print("Displaying segmented lung data for: " + str(filename))
+		# insert code for segmenting lungs and displaying results here
+	except:
+		popup = tk.Toplevel()
+		popup.winfo_toplevel().title("Warning")
+		popup.geometry("250x50")
+		label = tk.Label(text="Please select a patient first.",master=popup)
+		label.pack()
+		button = tk.Button(text="Close",master=popup,command=popup.destroy)
+		button.pack()
 
 def handle_fvc():
 	print("Handling predict fvc...")
+	try:
+		assert(os.path.isdir(filename))
+		print("Predicting FVC for: " + str(filename))
+		# insert code for predicting FVC here
+	except:
+		popup = tk.Toplevel()
+		popup.winfo_toplevel().title("Warning")
+		popup.geometry("250x50")
+		label = tk.Label(text="Please select a patient first.",master=popup)
+		label.pack()
+		button = tk.Button(text="Close",master=popup,command=popup.destroy)
+		button.pack()
 
 def main():
 	window = tk.Tk()
