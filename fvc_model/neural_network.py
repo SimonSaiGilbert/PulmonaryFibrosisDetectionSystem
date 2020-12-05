@@ -53,6 +53,19 @@ def nn_model(scan_size, backbone_weights=None, freeze_backbone=False):
     model = Model(inputs=[backbone.input, categorical_input], outputs=output_2)
     return model
 
+def segmentation_model(scan_size, backbone_weights=None, freeze_backbone=False):
+    backbone = models.BCDU_net_D3(input_size=scan_size)
+
+    if backbone_weights:
+        source_model = load_model(backbone_weights)
+        backbone = transfer_weights(source_model, backbone)
+    if freeze_backbone:
+        backbone.trainable = False
+
+    model = Model(inputs=[backbone.input], outputs=backbone.output)
+
+    return model
+
 
 def test_nn_model():
     backbone = models.BCDU_net_D3(input_size=(128, 64, 64, 1))
