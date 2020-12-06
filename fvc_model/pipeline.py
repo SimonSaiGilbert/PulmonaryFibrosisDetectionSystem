@@ -1,6 +1,6 @@
+from train import correct_dim_size, sex_to_int, smoking_status_to_int
 from fvc_model.neural_network import nn_model
 from loader.loader import load_scan
-from train import correct_dim_size
 from tqdm import tqdm
 
 import tensorflow as tf
@@ -37,4 +37,5 @@ def fvc_pipeline(patient, categorical_data):
         float(smoking_status_to_int(categorical_data["smoking_status"])),
     ]
     patient_data["data"][1].append(data_pt)
-    predictions = model.predict(test_arr)
+    predictions = model.predict(patient_data)
+    return predictions
