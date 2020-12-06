@@ -57,8 +57,8 @@ class Fpups(ttk.Frame):
 
 	def handle_sp(self):
 		print("Handling select patient...")
-		# self.filename = '/Users/sgilbert/Desktop/ec601-term-project-gui-dev/ID00007637202177411956430'
-		self.filename = askdirectory()
+		self.filename = '/projectnb/ece601/F-PuPS/kaggle/data/train/ID00007637202177411956430'
+		#  self.filename = askdirectory()
 		try:
 			assert(os.path.isdir(self.filename))
 			print("Ready to process patient from: " + str(self.filename))
@@ -111,10 +111,6 @@ class Fpups(ttk.Frame):
 			root.mainloop() 
 		except:
 			print("The slice number you entered is not valid")
-
-		
-
-
 
 	def display_image(self, slice_val):
 		root2 = tk.Toplevel(root) 
@@ -178,6 +174,10 @@ class Fpups(ttk.Frame):
 			assert(os.path.isdir(self.filename))
 			print("Predicting FVC for: " + str(self.filename))
 			# insert code for predicting FVC here
+
+            #  fvc_val = fvc_pipeline(self.filename)
+            #  print(fvc_val)
+
 		except:
 			popup = tk.Toplevel()
 			popup.winfo_toplevel().title("Warning")
