@@ -4,7 +4,7 @@ from tkinter import ttk
 from tkinter.filedialog import askdirectory
 from PIL import ImageTk,Image 
 from segmentation.preprocess_data import load_data
-from run_segmentation import main as segment
+from segmentation.gui_segment_pipeline import segmentation_fn
 import matplotlib.pyplot as plt
 
 class Fpups(ttk.Frame):
@@ -125,29 +125,52 @@ class Fpups(ttk.Frame):
 		root.mainloop() 
 
 
+	def get_segmented_slice_and_display(self):
+		try:
+			slice_val = int(segmented_slice_val_entry.get()) - 1
+			#print("slice val: ", slice_val)
+			root2 = tk.Toplevel(root)
+			root2.wm_title("Segmented Slice %d"%(slice_val+1))
+			canvas = tk.Canvas(root2, width=self.segmentation_data.shape[1], height=self.segmentation_data.shape[2])  
+			img = ImageTk.PhotoImage(image=Image.fromarray(256*self.segmentation_data[slice_val][:][:]))  
+			canvas.create_image(0, 0, anchor=tk.NW, image=img) 
+			canvas.pack()  
+			root.mainloop() 
+		except:
+			print("The slice number you entered is not valid")
 
 	def handle_seg(self):
 		print("Handling segment lungs...")
-		# try:
-		assert(os.path.isdir(self.filename))
-		# print("Displaying segmented lung data for: " + str(self.filename))
-		# insert code for segmenting lungs and displaying results here
-		print("Select directory to save your results: ")
-		#save_dir = askdirectory()
-		save_dir = "segmentation/gui_segmentation_output"
-		weights_dir = "segmentation/weight_lung_from_scc"
-		segment(self.filename, save_dir, weights_dir)
+		try:
+			assert(os.path.isdir(self.filename))
+			print("Displaying segmented lung data for: " + str(self.filename))
+			# insert code for segmenting lungs and displaying results here
+			self.segmentation_data = segmentation_fn(self.filename)
+            
+			self.load_patient_slices()
 
+			window = tk.Toplevel(root)
+			window.wm_title("CT Scan")
 
+			l = tk.Label(window, text="Enter desired slice in range 1 - %d"%self.patient_data.shape[0])
+			l.grid(row=0, column=0)
 
-		# except:
-		# 	popup = tk.Toplevel()
-		# 	popup.winfo_toplevel().title("Warning")
-		# 	popup.geometry("250x50")
-		# 	label = tk.Label(text="Please select a patient first.",master=popup)
-		# 	label.pack()
-		# 	button = tk.Button(text="Close",master=popup,command=popup.destroy)
-		# 	button.pack()
+			global segmented_slice_val_entry
+			segmented_slice_val_entry = ttk.Entry(window)
+			segmented_slice_val_entry.grid(row=0, column=1)
+			button_calc = tk.Button(window, text="Display Segmented Slice", command=self.get_segmented_slice_and_display)
+			button_calc.grid(row=1, column=0)
+
+			root.mainloop() 
+            
+		except:
+		 	popup = tk.Toplevel()
+		 	popup.winfo_toplevel().title("Warning")
+		 	popup.geometry("250x50")
+		 	label = tk.Label(text="Please select a patient first.",master=popup)
+		 	label.pack()
+		 	button = tk.Button(text="Close",master=popup,command=popup.destroy)
+		 	button.pack()
 
 	def handle_fvc(self):
 		print("Handling predict fvc...")

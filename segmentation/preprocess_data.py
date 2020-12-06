@@ -3,7 +3,7 @@ import pydicom
 import glob
 import os
 import re
-import Reza_functions as rf
+import segmentation.Reza_functions as rf
 from skimage.transform import resize
 
 

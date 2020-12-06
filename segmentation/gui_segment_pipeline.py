@@ -30,4 +30,6 @@ def segmentation_fn(patient):
     postd.save_data(postprocessed_data,output_path,patient_id)
 
     print("pipeline.py complete")
+    
+    return postprocessed_data
 

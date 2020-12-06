@@ -1,6 +1,6 @@
 import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-import segmentation.models as M
+import segmentation.models_segmentation as M
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
@@ -18,7 +18,7 @@ def run_model(input_path, output_path, patient_id):
     te_data2 = te_data /255.
     model = M.BCDU_net_D3(input_size = (512,512,1))
     #model.summary()             # this line prints out text summarizing the model
-    model.load_weights('weight_lung')
+    model.load_weights('segmentation/weight_lung')
     predictions = model.predict(te_data2, batch_size=2, verbose=1)
     
     predictions = np.squeeze(predictions)
