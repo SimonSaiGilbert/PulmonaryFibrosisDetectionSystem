@@ -6,6 +6,8 @@ from PIL import ImageTk,Image
 from segmentation.preprocess_data import load_data
 from segmentation.gui_segment_pipeline import segmentation_fn
 import matplotlib.pyplot as plt
+from fvc_model.pipeline import fvc_pipeline
+
 
 class Fpups(ttk.Frame):
     def __init__(self,window):
@@ -57,9 +59,8 @@ class Fpups(ttk.Frame):
 
     def handle_sp(self):
         print("Handling select patient...")
-        # self.filename = '/Users/sgilbert/Desktop/ec601-term-project-gui-dev/ID00007637202177411956430'
-        self.filename = '/projectnb/ece601/F-PuPS/kaggle/data/train/ID00007637202177411956430'
-        #  self.filename = askdirectory()
+        #  self.filename = '/projectnb/ece601/F-PuPS/kaggle/data/train/ID00007637202177411956430'
+        self.filename = askdirectory()
         try:
             assert(os.path.isdir(self.filename))
             print("Ready to process patient from: " + str(self.filename))
@@ -175,22 +176,53 @@ class Fpups(ttk.Frame):
 
     def handle_fvc(self):
         print("Handling predict fvc...")
-        try:
-            assert(os.path.isdir(self.filename))
-            print("Predicting FVC for: " + str(self.filename))
-            # insert code for predicting FVC here
-            categorical_data = {"weeks": 1, "age": 75, "sex": "Male", "smoking_status": "Never"}
-            fvc_val = fvc_pipeline(self.filename, categorical_data)
-            print(fvc_val)
+        assert(os.path.isdir(self.filename))
 
-        except:
-            popup = tk.Toplevel()
-            popup.winfo_toplevel().title("Warning")
-            popup.geometry("250x50")
-            label = tk.Label(text="Please select a patient first.",master=popup)
-            label.pack()
-            button = tk.Button(text="Close",master=popup,command=popup.destroy)
-            button.pack()
+        def submit_categorical():
+            categorical_data = {
+                "weeks": e1.get(),
+                "age": e2.get(),
+                "sex": e3.get(),
+                "smoking_status": e4.get(),
+            }
+            fvc_val = fvc_pipeline(self.filename, categorical_data)
+            r.set("Predicted FVC: {:.3f} mL".format(fvc_val))
+
+        window = tk.Toplevel(root)
+        window.wm_title("Categorical Data Entry")
+
+        l1 = tk.Label(window, text="How many weeks since CT scan?")
+        l1.grid(row=0, column=0)
+
+        l2 = tk.Label(window, text="How old is the patient?")
+        l2.grid(row=1, column=0)
+
+        l3 = tk.Label(window, text="What is the patient's sex? (Male or Female)")
+        l3.grid(row=2, column=0)
+
+        l4 = tk.Label(window, text="What is the patient's smoking status? (Never, Ex-smoker, or Currently)")
+        l4.grid(row=3, column=0)
+
+        e1 = tk.Entry(window)
+        e1.grid(row=0, column=1)
+
+        e2 = tk.Entry(window)
+        e2.grid(row=1, column=1)
+
+        e3 = tk.Entry(window)
+        e3.grid(row=2, column=1)
+
+        e4 = tk.Entry(window)
+        e4.grid(row=3, column=1)
+
+        r = tk.StringVar()
+        r.set("Predicted FVC:")
+        result = tk.Label(window, textvariable=r)
+        result.grid(row=4, column=0)
+
+        submit_button = tk.Button(window, text="Submit", command=submit_categorical)
+        submit_button.grid(row=5, column=0)
+
 
 def main():
     global root

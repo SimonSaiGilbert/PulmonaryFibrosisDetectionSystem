@@ -1,4 +1,5 @@
-from train import correct_dim_size, sex_to_int, smoking_status_to_int
+from train import correct_dim_size, sex_to_int, smoking_status_to_int, root_mean_squared_error_loss
+from tensorflow.keras.models import load_model
 from fvc_model.neural_network import nn_model
 from loader.loader import load_scan
 from tqdm import tqdm
@@ -10,10 +11,9 @@ import os
 
 def fvc_pipeline(patient, categorical_data):
     target_scan_size = (128, 64, 64, 1)
-    model = nn_model(
-        scan_size=target_scan_size,
-        backbone_weights="/projectnb/ece601/F-PuPS/Hellman_working_directory/ec601-term-project/segmentation/weight_lung",
-    )
+    weight_file = "unfrozen_backbone"
+    model = load_model(weight_file, compile=False)
+    model.compile(loss=root_mean_squared_error_loss)
 
     patient_data = {"data": [[], []]}
 
@@ -28,14 +28,14 @@ def fvc_pipeline(patient, categorical_data):
     scan_data = scan_data / 255.
     scan_data = np.expand_dims(scan_data, axis=-1)
 
-    patient_data["data"][0].appen(scan_data)
+    patient_data["data"][0].append(scan_data)
 
     data_pt = [
         categorical_data["weeks"],
         categorical_data["age"],
-        float(sex_to_int(categorical_data["sex"])),
-        float(smoking_status_to_int(categorical_data["smoking_status"])),
+        float(sex_to_int[categorical_data["sex"]]),
+        float(smoking_status_to_int[categorical_data["smoking_status"]]),
     ]
     patient_data["data"][1].append(data_pt)
-    predictions = model.predict(patient_data)
-    return predictions
+    predictions = model.predict(patient_data["data"])
+    return predictions[0][0]
