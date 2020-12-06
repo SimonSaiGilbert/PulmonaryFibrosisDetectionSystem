@@ -11,7 +11,7 @@ import os
 
 def fvc_pipeline(patient, categorical_data):
     target_scan_size = (128, 64, 64, 1)
-    weight_file = "unfrozen_backbone"
+    weight_file = "/usr3/graduate/manjuns/ec601-term-project/unfrozen_backbone"
     model = load_model(weight_file, compile=False)
     model.compile(loss=root_mean_squared_error_loss)
 
