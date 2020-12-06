@@ -18,7 +18,7 @@ def run_model(input_path, output_path, patient_id):
     te_data2 = te_data /255.
     model = M.BCDU_net_D3(input_size = (512,512,1))
     #model.summary()             # this line prints out text summarizing the model
-    model.load_weights('segmentation/weight_lung')
+    model.load_weights('/projectnb/ece601/F-PuPS/Hellman_working_directory/ec601-term-project/segmentation/weight_lung')
     predictions = model.predict(te_data2, batch_size=2, verbose=1)
     
     predictions = np.squeeze(predictions)

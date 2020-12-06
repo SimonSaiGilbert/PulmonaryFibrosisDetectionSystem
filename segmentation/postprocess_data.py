@@ -47,6 +47,7 @@ def save_data(postprocessed_data, output_path, patient_id):
     
     print('Data saved')
 
+
 if __name__ == "__main__":
     input_path_before_model    = './processed_data/'
     input_path_after_model     = './output/'
