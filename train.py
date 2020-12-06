@@ -1,4 +1,7 @@
+from tensorflow.keras.callbacks import ModelCheckpoint
+from fvc_model.utils import laplace_log_likelihood
 from csv_reader.csv_to_dict import csv_to_dict
+from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 from fvc_model.neural_network import nn_model
 from loader.loader import load_scan
@@ -31,6 +34,7 @@ class ModelTrainer(object):
     def __init__(self, model: tf.keras.models.Model, run_name: str):
         self.model = model
         self.run_name = run_name
+        self.model_checkpoint = ModelCheckpoint(filepath=run_name)
 
     def train(self, lr: float, train_data: dict, test_data: dict, epochs: int=100):
         self.model.compile(optimizer=Adam(lr=lr), loss=root_mean_squared_error_loss)    
@@ -38,13 +42,15 @@ class ModelTrainer(object):
             train_data["data"], train_data["label"],
             batch_size=1,
             epochs=epochs,
+            callbacks=[self.model_checkpoint],
             validation_data=(test_data["data"], test_data["label"])
         )
         return
 
-    def eval(self, test_arr: np.ndarray):
-        predictions = model.predict(test_arr)
-        return predictions
+    def eval(self, test_data: dict):
+        predictions = model.predict(test_data["data"])
+        pred_loss = model.evaluate(test_data["data"], test_data["label"], batch_size=1)
+        return predictions, pred_loss
 
 
 def pad_arr(input_arr, target_dim_size, dim):
@@ -76,7 +82,7 @@ def correct_dim_size(arr, target_dim_size, dim):
 
 def load_dataset(scan_data_dir, csv_dir, target_scan_size):
     dataset = {"data": [[], []], "label": []}
-    csv_data = csv_to_dict(csv_dir, pad_with_zeros=True)
+    csv_data = csv_to_dict(csv_dir, pad_with_zeros=False)
 
     if "train" in scan_data_dir:
         csv_data = csv_data[0]
@@ -120,16 +126,20 @@ def load_dataset(scan_data_dir, csv_dir, target_scan_size):
 
 if __name__ == "__main__":
     target_scan_size = (128, 64, 64, 1)
-    model = nn_model(scan_size=target_scan_size, backbone_weights="/projectnb/ece601/F-PuPS/Hellman_working_directory/ec601-term-project/segmentation/weight_lung")
-    #  model = nn_model(scan_size=target_scan_size)
+    #  model = nn_model(
+    #      scan_size=target_scan_size,
+    #      backbone_weights="/projectnb/ece601/F-PuPS/Hellman_working_directory/ec601-term-project/segmentation/weight_lung",
+    #      freeze_backbone=True,
+    #  )
 
-    # TODO: Dynamically find max number of slices
-    max_slice_size = 64
-    train_dataset = load_dataset(
-        scan_data_dir="/projectnb/ece601/F-PuPS/kaggle/data/train",
-        csv_dir="/projectnb/ece601/F-PuPS/kaggle/data/", 
-        target_scan_size=target_scan_size,
-    )
+    model = load_model("unfrozen_backbone", compile=False)
+    model.compile(loss=root_mean_squared_error_loss)
+
+    #  train_dataset = load_dataset(
+    #      scan_data_dir="/projectnb/ece601/F-PuPS/kaggle/data/train",
+    #      csv_dir="/projectnb/ece601/F-PuPS/kaggle/data/",
+    #      target_scan_size=target_scan_size,
+    #  )
     test_dataset = load_dataset(
         scan_data_dir="/projectnb/ece601/F-PuPS/kaggle/data/test",
         csv_dir="/projectnb/ece601/F-PuPS/kaggle/data/",
@@ -137,5 +147,6 @@ if __name__ == "__main__":
     )
 
     trainer = ModelTrainer(model=model, run_name="unfrozen_backbone")
-    trainer.train(lr=1e-4, train_data=train_dataset, test_data=test_dataset, epochs=100)
+    #  trainer.train(lr=1e-4, train_data=train_dataset, test_data=test_dataset, epochs=100)
+    trainer.eval(test_dataset)
 

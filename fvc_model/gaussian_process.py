@@ -11,6 +11,7 @@ matplotlib.use("Agg")
 from sklearn.gaussian_process.kernels import ConstantKernel, RBF
 from sklearn.gaussian_process import GaussianProcessRegressor
 from csv_reader.csv_to_dict import csv_to_dict
+from fvc_model.utils import laplace_log_likelihood
 from tqdm import tqdm
 
 
@@ -33,17 +34,6 @@ sex_to_int = {
     "Male": 0,
     "Female": 1,
 }
-
-## Evaluation Metric Function - Credit to @rohanrao on Kaggle
-def laplace_log_likelihood(actual_fvc, predicted_fvc, confidence, return_values=False):
-    """ Calculates the modified Laplace Log Likelihood score """
-    sd_clipped = np.maximum(confidence, 70)
-    delta = np.minimum(np.abs(actual_fvc - predicted_fvc), 1000)
-    metric = - np.sqrt(2) * delta / sd_clipped - np.log(np.sqrt(2) * sd_clipped)
-
-    if return_values:
-        return metric
-    return np.mean(metric)
 
 
 def featurize_train_inputs(input_dict):
