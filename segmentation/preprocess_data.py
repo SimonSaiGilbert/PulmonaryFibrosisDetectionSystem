@@ -3,7 +3,7 @@ import pydicom
 import glob
 import os
 import re
-import Reza_functions as rf
+import segmentation.Reza_functions as rf
 from skimage.transform import resize
 
 
@@ -54,6 +54,7 @@ def load_data(data_dir):
     data_list = []
     for f in dcm_files:
         data_list.append(pydicom.dcmread(f))
+    print("data dir: ", data_dir)
 
     # Concatenating all the arrays together to form a [Num Images, rows, cols] size array
     data = np.stack([x.pixel_array for x in data_list])
